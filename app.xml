@@ -1,0 +1,280 @@
+<!--
+Pitwi 0.5.2
+______________________________________________________________________________
+!-->
+
+<root>
+  <style>
+    #base {
+      border: simple;
+      border-color: red;
+    }
+    #diagramme {
+      border: simple;
+    }
+    #update_graph {
+      active-fg: yellow;
+    }
+    entry {
+      active-fg: yellow;
+    }
+    checkButton {
+      active-fg: yellow;
+    }
+    .style-border {
+      border: corner;
+      active-border: simple;
+      active-border-color: yellow;
+    }
+    .title {
+      fg: cyan;
+    }
+  </style>
+
+  <script>
+    def check_nbr(value):
+      try: return int(value)
+      except:
+        try: return float(value)
+        except:
+          return None
+  </script>
+
+  <area id="base">
+
+    <area spanrow="3">
+      <button id="show_graphique" class="style-border" row="1" column="1">
+        Graphique
+        <function>
+          menu.change(1)
+        </function>
+      </button>
+      <button id="show_settings" class="style-border" row="1" column="2">
+        Paramètres
+        <function>
+          menu.change(2)
+        </function>
+      </button>
+    </area>
+
+    <carousel id="menu" spanrow="32">
+
+      <text>
+        {"\n"}
+        Bienvenue !
+        {"\n"}
+        Naviguez avec les touches Tab et Ctrl+Tab.
+        {"\n"}
+        Validez avec Entrée.
+      </text>
+
+      <!-- Graphique -->
+      <area>
+        <button id="update_graph" class="style-border" spanrow="3">
+          Actualiser le graphique.
+          <function>
+            update_graph.set("Actualisation en cours...", active_fg="red")
+            update_button(update_world(update_graph.set))
+            update_graph.set("Actualiser le graphique.", active_fg="yellow")
+          </function>
+        </button>
+        <text id="diagramme" spanrow="26"/>
+        <area spanrow="3">
+          <text row="1" column="1">{"\nPopulations: "}</text>
+          <area row="1" column="2" spancolumn="4" id="buttons">
+            <ignore>
+              <button id="choice_population" class="style-border"/>
+            </ignore>
+            <script>
+              def update_button(world):
+
+                def change_pop(name):
+                  def func(value):
+                    diagramme.set(update_graph_pop(world, name))
+                  return func
+
+                for child in [*buttons.childs]:
+                  buttons.rem(child)
+
+                for i, name in enumerate(world.populations, 1):
+                  buttons.add(
+                    choice_population.copy(
+                      name,
+                      function = change_pop(name)
+                    ),
+                    row=1, column=i
+                  )
+            </script>
+          </area>
+        </area>
+      </area>
+
+      <!-- Parametres -->
+      <area>
+        <area row="1" column="1">
+          <text class="title">
+            Général
+          </text>
+          <checkButton>
+            [x] Couleurs
+            ;
+            [ ] Couleurs
+            <function>
+              options['couleur'] = not options['couleur']
+              diagramme.value = " "
+            </function>
+          </checkButton>
+          <entry id="entry_migration">
+            {"Migration : "}
+            <function args="value">
+            value = check_nbr(value)
+            if value != None:
+              options['migration'] = value
+              setting_migration.set(f"{value}%")
+            </function>
+          </entry>
+          <entry id="entry_inceste">
+            {"Inceste : "}
+            <function args="value">
+            value = check_nbr(value)
+            if value != None:
+              options['inceste'] = value
+              setting_inceste.set(f"{value}%")
+            </function>
+          </entry>
+          <entry id="entry_taux">
+            {"Taux : "}
+            <function args="value">
+            value = check_nbr(value)
+            if value != None:
+              options['taux'] = value
+              setting_taux.set(f"x{value}")
+            </function>
+          </entry>
+          <entry id="entry_nbr_generations">
+            {"Nombre generation : "}
+            <function args="value">
+            value = check_nbr(value)
+            if value != None:
+              options['nbr_generations'] = value
+              setting_nbr_generations.set(value)
+            </function>
+          </entry>
+          <entry id="entry_nbr_populations">
+            {"Nombre population : "}
+            <function args="value">
+            value = check_nbr(value)
+            if value != None:
+              options['nbr_populations'] = value
+              setting_nbr_populations.set(value)
+            </function>
+          </entry>
+          <entry id="entry_nbr_individus">
+            {"Nombre individus par population : "}
+            <function args="value">
+            value = check_nbr(value)
+            if value != None:
+              options['nbr_individus'] = value
+              setting_nbr_individus.set(value)
+            </function>
+          </entry>
+          <entry id="entry_mutation">
+            {"Mutation : "}
+            <function args="value">
+            value = check_nbr(value)
+            if value != None:
+              options['mutation'] = value
+              setting_mutation.set(f"{value}%")
+            </function>
+          </entry>
+
+          <text class="title">
+            Alléles
+          </text>
+          <checkButton>
+            [x] A/A
+            ;
+            [ ] A/A
+            <function>
+              options['allow_A/A'] = not options['allow_A/A']
+            </function>
+          </checkButton>
+          <checkButton>
+            [x] A/a
+            ;
+            [ ] A/a
+            <function>
+              options['allow_A/a'] = not options['allow_A/a']
+            </function>
+          </checkButton>
+          <checkButton>
+            [x] a/a
+            ;
+            [ ] a/a
+            <function>
+              options['allow_a/a'] = not options['allow_a/a']
+            </function>
+          </checkButton>
+
+          <text class="title">
+            Poids des allèles
+          </text>
+          <entry id="entry_weigth_A">
+            {"A : "}
+            <function args="value">
+            value = check_nbr(value)
+            if value != None:
+              options['weigth_A'] = value
+              setting_weigth_A.set(f"{value}")
+            </function>
+          </entry>
+          <entry id="entry_weigth_a">
+            {"a : "}
+            <function args="value">
+            value = check_nbr(value)
+            if value != None:
+              options['weigth_a'] = value
+              setting_weigth_a.set(f"{value}")
+            </function>
+          </entry>
+        </area>
+        <area row="1" column="2">
+          <text/>
+          <text id="setting_color"/>
+          <text id="setting_migration">
+            {options['migration']}%
+          </text>
+          <text id="setting_inceste">
+            {options['inceste']}%
+          </text>
+          <text id="setting_taux">
+            x{options['taux']}
+          </text>
+          <text id="setting_nbr_generations">
+            {options['nbr_generations']}
+          </text>
+          <text id="setting_nbr_populations">
+            {options['nbr_populations']}
+          </text>
+          <text id="setting_nbr_individus">
+            {options['nbr_individus']}
+          </text>
+          <text id="setting_mutation">
+            {options['mutation']}%
+          </text>
+          <text/>
+          <text id="setting_allele_A/A"/>
+          <text id="setting_allele_A/a"/>
+          <text id="setting_allele_a/a"/>
+          <text/>
+          <text id="setting_weigth_A">
+            {options['weigth_A']}
+          </text>
+          <text id="setting_weigth_a">
+            {options['weigth_a']}
+          </text>
+        </area>
+      </area>
+    </carousel>
+  </area>
+</root>
